@@ -1,5 +1,6 @@
 # Configuration file
 *.cfg
+dwh.cfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
