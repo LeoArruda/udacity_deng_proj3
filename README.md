@@ -1,1 +1,0 @@
-# udacity_deng_proj3
