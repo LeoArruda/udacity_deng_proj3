@@ -17,104 +17,105 @@ time_table_drop = "DROP TABLE IF EXISTS start_time"
 # CREATE TABLES
 
 staging_events_table_create= ("""
-CREATE TABLE staging_events 
+CREATE TABLE IF NOT EXISTS staging_events 
 (
-    artist          VARCHAR(300),
-    auth            VARCHAR(25),
-    first_name      VARCHAR(25),
-    gender          VARCHAR(1),
-    item_in_session INTEGER, 
-    last_name       VARCHAR(25),
-    legnth          DECIMAL(9, 5),
-    level           VARCHAR(10),
-    location        VARCHAR(300),
-    method          VARCHAR(6),
-    page            VARCHAR(50),
-    registration    DECIMAL(14, 1),
-    session_id      INTEGER,
-    song            VARCHAR(300),
-    status          INTEGER,
-    ts              BIGINT,
-    user_agent      VARCHAR(150),
-    user_id         VARCHAR(10)
+    event_id    BIGINT IDENTITY(0,1)    NOT NULL,
+    artist      VARCHAR                 NULL,
+    auth        VARCHAR                 NULL,
+    firstName   VARCHAR                 NULL,
+    gender      VARCHAR                 NULL,
+    itemInSession VARCHAR               NULL,
+    lastName    VARCHAR                 NULL,
+    length      VARCHAR                 NULL,
+    level       VARCHAR                 NULL,
+    location    VARCHAR                 NULL,
+    method      VARCHAR                 NULL,
+    page        VARCHAR                 NULL,
+    registration VARCHAR                NULL,
+    sessionId   INTEGER                 NOT NULL SORTKEY DISTKEY,
+    song        VARCHAR                 NULL,
+    status      INTEGER                 NULL,
+    ts          BIGINT                  NOT NULL,
+    userAgent   VARCHAR                 NULL,
+    userId      INTEGER                 NULL
 )
 """)
 
 staging_songs_table_create = ("""
-CREATE TABLE staging_songs 
+CREATE TABLE IF NOT EXISTS staging_songs 
 (
-    num_songs        INTEGER,
-    artist_id        VARCHAR(25), 
-    artist_latitude  DECIMAL(10, 5),
-    artist_longitude DECIMAL(10, 5),
-    artist_location  VARCHAR(300),
-    artist_name      VARCHAR(300),
-    song_id          VARCHAR(25),
-    title            VARCHAR(300),
-    duration         DECIMAL(9, 5),
-    year             INTEGER
-)
+    num_songs           INTEGER         NULL,
+    artist_id           VARCHAR         NOT NULL SORTKEY DISTKEY,
+    artist_latitude     VARCHAR         NULL,
+    artist_longitude    VARCHAR         NULL,
+    artist_location     VARCHAR(500)    NULL,
+    artist_name         VARCHAR(500)    NULL,
+    song_id             VARCHAR         NOT NULL,
+    title               VARCHAR(500)    NULL,
+    duration            DECIMAL(9)      NULL,
+    year                INTEGER         NULL
+);
 """)
 
 songplay_table_create = ("""
-CREATE TABLE songplay 
+CREATE TABLE IF NOT EXISTS songplays 
 (
-    songplay_id INTEGER IDENTITY(0,1) PRIMARY KEY,
-    start_time  TIMESTAMP NOT NULL, 
-    user_id     VARCHAR(10),
-    level       VARCHAR(10),
-    song_id     VARCHAR(300) NOT NULL,
-    artist_id   VARCHAR(25) NOT NULL,
-    session_id  INTEGER,
-    location    VARCHAR(300),
-    user_agent  VARCHAR(150)
-)
+    songplay_id INTEGER IDENTITY(0,1)   NOT NULL SORTKEY,
+    start_time  TIMESTAMP               NOT NULL,
+    user_id     VARCHAR(50)             NOT NULL DISTKEY,
+    level       VARCHAR(10)             NOT NULL,
+    song_id     VARCHAR(40)             NOT NULL,
+    artist_id   VARCHAR(50)             NOT NULL,
+    session_id  VARCHAR(50)             NOT NULL,
+    location    VARCHAR(100)            NULL,
+    user_agent  VARCHAR(255)            NULL
+);
 """)
 
 user_table_create = ("""
-CREATE TABLE sparkify_user 
+CREATE TABLE IF NOT EXISTS users 
 (
-    user_id    VARCHAR(10) PRIMARY KEY,
-    first_name VARCHAR(25),
-    last_name  VARCHAR(25),
-    gender     VARCHAR(1),
-    level      VARCHAR(10)
-)
+    user_id     INTEGER                 NOT NULL SORTKEY,
+    first_name  VARCHAR(50)             NULL,
+    last_name   VARCHAR(80)             NULL,
+    gender      VARCHAR(10)             NULL,
+    level       VARCHAR(10)             NULL
+) diststyle all;
 """)
 
 song_table_create = ("""
-CREATE TABLE song 
+CREATE TABLE IF NOT EXISTS songs 
 (
-    song_id   VARCHAR(25) PRIMARY KEY,
-    title     VARCHAR(300) NOT NULL,
-    artist_id VARCHAR(25),
-    year      INTEGER,
-    duration  DECIMAL(9, 5) NOT NULL
+    song_id     VARCHAR(50)             NOT NULL SORTKEY,
+    title       VARCHAR(500)            NOT NULL,
+    artist_id   VARCHAR(50)             NOT NULL,
+    year        INTEGER                 NOT NULL,
+    duration    DECIMAL(9)              NOT NULL
 )
 """)
 
 artist_table_create = ("""
-CREATE TABLE artist 
+CREATE TABLE IF NOT EXISTS artists 
 (
-    artist_id VARCHAR(25) PRIMARY KEY,
-    name      VARCHAR(300) NOT NULL,
-    location  VARCHAR(300),
-    lattitude DECIMAL(10, 5),
-    longitude DECIMAL(10, 5)
-)
+    artist_id   VARCHAR(50)             NOT NULL SORTKEY,
+    name        VARCHAR(500)            NULL,
+    location    VARCHAR(500)            NULL,
+    latitude    DECIMAL(9)              NULL,
+    longitude   DECIMAL(9)              NULL
+) diststyle all;
 """)
 
 time_table_create = ("""
-CREATE TABLE start_time 
+CREATE TABLE IF NOT EXISTS time 
 (
-    start_time TIMESTAMP PRIMARY KEY,
-    hour       INTEGER,
-    day        INTEGER,
-    week       INTEGER,
-    month      INTEGER,
-    year       INTEGER,
-    weekday    INTEGER
-)
+    start_time  TIMESTAMP               NOT NULL SORTKEY,
+    hour        SMALLINT                NULL,
+    day         SMALLINT                NULL,
+    week        SMALLINT                NULL,
+    month       SMALLINT                NULL,
+    year        SMALLINT                NULL,
+    weekday     SMALLINT                NULL
+) diststyle all;
 """)
 
 # STAGING TABLES
@@ -123,7 +124,7 @@ staging_events_copy = ("""
 COPY staging_events FROM {} 
 IAM_ROLE {}
 REGION 'us-west-2'
-COMPUPDATE OFF
+STATUPDATE ON
 FORMAT AS JSON {};
 """).format(
     config.get('S3', 'LOG_DATA'), 
@@ -133,6 +134,9 @@ FORMAT AS JSON {};
 staging_songs_copy = ("""
 COPY staging_songs FROM {} 
 IAM_ROLE {}
+ACCEPTINVCHARS AS '^'
+STATUPDATE ON
+region 'us-west-2'
 FORMAT AS JSON 'auto';
 """).format(
     config.get('S3', 'SONG_DATA'), 
@@ -159,8 +163,7 @@ SELECT  DISTINCT TIMESTAMP 'epoch' + se.ts/1000 \
         se.location                 AS location,
         se.userAgent                AS user_agent
 FROM staging_events AS se
-JOIN staging_songs AS ss
-    ON (se.artist = ss.artist_name)
+JOIN staging_songs AS ss ON (se.artist = ss.artist_name)
 WHERE se.page = 'NextSong';
 """)
 
@@ -208,7 +211,7 @@ FROM staging_songs AS ss;
 """)
 
 time_table_insert = ("""
-INSERT INTO start_time(
+INSERT INTO time (
     start_time,
     hour,
     day,
@@ -225,8 +228,8 @@ SELECT  DISTINCT TIMESTAMP 'epoch' + se.ts/1000 \
         EXTRACT(month FROM start_time)   AS month,
         EXTRACT(year FROM start_time)    AS year,
         EXTRACT(week FROM start_time)    AS weekday
-    FROM    staging_events                   AS se
-    WHERE se.page = 'NextSong';
+FROM    staging_events                   AS se
+WHERE se.page = 'NextSong';
 """)
 # QUERY LISTS
 
