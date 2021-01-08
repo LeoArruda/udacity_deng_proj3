@@ -8,8 +8,12 @@ def load_staging_tables(cur, conn):
     Read data from S3 buckets and load the data into staging tables.
     """
     for query in copy_table_queries:
+        print('------------------')
+        print('Processing query: {}'.format(query))
         cur.execute(query)
         conn.commit()
+        print('------------------')
+        print('{} processed OK.'.format(query))
 
 
 def insert_tables(cur, conn):
@@ -18,8 +22,12 @@ def insert_tables(cur, conn):
     insert into fact/dimention tables for the data analysis.
     """
     for query in insert_table_queries:
+        print('------------------')
+        print('Processing query: {}'.format(query))
         cur.execute(query)
         conn.commit()
+        print('------------------')
+        print('{} processed OK.'.format(query))
 
 
 def main():
@@ -28,6 +36,7 @@ def main():
 
     conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
     cur = conn.cursor()
+    print("AWS Redshift connection established OK.")
     
     load_staging_tables(cur, conn)
     insert_tables(cur, conn)
