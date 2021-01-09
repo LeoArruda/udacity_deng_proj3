@@ -13,7 +13,7 @@ def load_staging_tables(cur, conn):
         cur.execute(query)
         conn.commit()
         print('------------------')
-        print('{} processed OK.'.format(query))
+        print('Processed OK.')
 
 
 def insert_tables(cur, conn):
@@ -27,7 +27,7 @@ def insert_tables(cur, conn):
         cur.execute(query)
         conn.commit()
         print('------------------')
-        print('{} processed OK.'.format(query))
+        print('Processed OK.')
 
 
 def main():

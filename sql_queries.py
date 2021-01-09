@@ -8,36 +8,36 @@ config.read('dwh.cfg')
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
-songplay_table_drop = "DROP TABLE IF EXISTS songplay"
-user_table_drop = "DROP TABLE IF EXISTS sparkify_user"
-song_table_drop = "DROP TABLE IF EXISTS song"
-artist_table_drop = "DROP TABLE IF EXISTS artist"
-time_table_drop = "DROP TABLE IF EXISTS start_time"
+songplay_table_drop = "DROP TABLE IF EXISTS songplays"
+user_table_drop = "DROP TABLE IF EXISTS users"
+song_table_drop = "DROP TABLE IF EXISTS songs"
+artist_table_drop = "DROP TABLE IF EXISTS artists"
+time_table_drop = "DROP TABLE IF EXISTS time"
 
 # CREATE TABLES
 
 staging_events_table_create= ("""
 CREATE TABLE IF NOT EXISTS staging_events 
 (
-    event_id    BIGINT IDENTITY(0,1)    NOT NULL,
-    artist      VARCHAR                 NULL,
-    auth        VARCHAR                 NULL,
-    firstName   VARCHAR                 NULL,
-    gender      VARCHAR                 NULL,
-    itemInSession VARCHAR               NULL,
-    lastName    VARCHAR                 NULL,
-    length      VARCHAR                 NULL,
-    level       VARCHAR                 NULL,
-    location    VARCHAR                 NULL,
-    method      VARCHAR                 NULL,
-    page        VARCHAR                 NULL,
-    registration VARCHAR                NULL,
-    sessionId   INTEGER                 NOT NULL SORTKEY DISTKEY,
-    song        VARCHAR                 NULL,
-    status      INTEGER                 NULL,
-    ts          BIGINT                  NOT NULL,
-    userAgent   VARCHAR                 NULL,
-    userId      INTEGER                 NULL
+    event_id      BIGINT IDENTITY(0,1)    NOT NULL,
+    artist        VARCHAR                 NULL,
+    auth          VARCHAR                 NULL,
+    firstName     VARCHAR                 NULL,
+    gender        VARCHAR                 NULL,
+    itemInSession VARCHAR                 NULL,
+    lastName      VARCHAR                 NULL,
+    length        VARCHAR                 NULL,
+    level         VARCHAR                 NULL,
+    location      VARCHAR                 NULL,
+    method        VARCHAR                 NULL,
+    page          VARCHAR                 NULL,
+    registration  VARCHAR                 NULL,
+    sessionId     INTEGER                 NOT NULL SORTKEY DISTKEY,
+    song          VARCHAR                 NULL,
+    status        INTEGER                 NULL,
+    ts            BIGINT                  NOT NULL,
+    userAgent     VARCHAR                 NULL,
+    userId        INTEGER                 NULL
 )
 """)
 
@@ -124,7 +124,8 @@ staging_events_copy = ("""
 COPY staging_events FROM {} 
 IAM_ROLE {}
 REGION 'us-west-2'
-STATUPDATE ON
+COMPUPDATE OFF
+STATUPDATE OFF
 FORMAT AS JSON {};
 """).format(
     config.get('S3', 'LOG_DATA'), 
@@ -134,10 +135,10 @@ FORMAT AS JSON {};
 staging_songs_copy = ("""
 COPY staging_songs FROM {} 
 IAM_ROLE {}
-ACCEPTINVCHARS AS '^'
-STATUPDATE ON
+COMPUPDATE OFF
+STATUPDATE OFF 
 region 'us-west-2'
-FORMAT AS JSON 'auto';
+JSON 'auto';
 """).format(
     config.get('S3', 'SONG_DATA'), 
     config.get('IAM_ROLE', 'ARN'))
