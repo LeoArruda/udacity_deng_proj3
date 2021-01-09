@@ -72,6 +72,8 @@ Using the song and event datasets, you'll need to create a star schema optimized
    5. *time* - timestamps of records in songplays broken down into specific units
        - start_time, hour, day, week, month, year, weekday
 
+![Schema Model](sparkifydb.png)
+
 
 ## Getting Started    
    
@@ -80,8 +82,8 @@ Using the song and event datasets, you'll need to create a star schema optimized
 
    AWS Redshift is used in ETL pipeline as the DB solution. Set-up in the _DWH-Project_ is as follows:    
 
-   > Cluster: 4x dc2.large nodes
-   > Location: US-East-2 (Flexible: You can set any location)
+   > Cluster: 4x dc2.large nodes  
+   > Location: US-East-2 (Flexible: You can set any location)  
       
 
 ### Creating tables    
@@ -134,22 +136,22 @@ The **create_tables.py** and *etl.py* scripts import the SQL, so the *sql_querie
 
 - **Songplays** 
    
-   table: I saved the timestamp, user ID, level, song ID, artist ID, session ID, location, and user agent from dataset. The song ID and artist ID will be retrieved by querying the songs and artists tables to find matches based on song title, artist name, and song duration time.
+   table: Saved the timestamp, user ID, level, song ID, artist ID, session ID, location, and user agent from dataset. The song ID and artist ID will be retrieved by querying the songs and artists tables to find matches based on song title, artist name, and song duration time.
 
 
 - **Songs** 
    
-   table: I saved song ID, Title, artist id, year and duration. 
+   table: Saved song ID, Title, artist id, year and duration. 
 
 
 - **Artists** 
    
-   table: I saved artist_id,name,location,latitude and longitude.
+   table: Saved artist_id,name,location,latitude and longitude.
    
     
     
 ## Song Play Analysis - Sample Queries   
-   
+
 
 -  Query the most popular user agent
 ```sql
