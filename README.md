@@ -27,7 +27,7 @@ The first dataset is a subset of real data from the Million Song Dataset. Each f
 
 `song_data/A/A/B/TRAABJL12903CDCF1A.json`
 
-And below is an example of what a single song file, TRAABJL12903CDCF1A.json, looks like.
+And below is an example of what a single song file, _TRAABJL12903CDCF1A.json_, looks like.
 
 `{"num_songs": 1, "artist_id": "ARJIE2Y1187B994AB7", "artist_latitude": null, "artist_longitude": null, "artist_location": "", "artist_name": "Line Renaud", "song_id": "SOUPIRU12A6D4FA1E1", "title": "Der Kleine Dompfaff", "duration": 152.92036, "year": 0}`
 
@@ -51,27 +51,30 @@ Using the song and event datasets, you'll need to create a star schema optimized
 
 ### Fact Table
 1. *songplays* - records in event data associated with song plays i.e. records with page NextSong
-songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent
+    - songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent
 
 
 ### Dimension Tables
 2. *users* - users in the app
-* user_id, first_name, last_name, gender, level
+    - user_id, first_name, last_name, gender, level
 
 
 3. *songs* - songs in music database
-* song_id, title, artist_id, year, duration
+    - song_id, title, artist_id, year, duration
 
 
 4. *artists* - artists in music database
-* artist_id, name, location, lattitude, longitude
+    - artist_id, name, location, lattitude, longitude
 
 
 5. *time* - timestamps of records in songplays broken down into specific units
-* start_time, hour, day, week, month, year, weekday
+    - start_time, hour, day, week, month, year, weekday
 
 
 ## Getting Started
+
+### Requirements
+
 
 ### Creating tables
 To run the *create_tables.py* script, open a terminal window and run the following command:
@@ -79,6 +82,8 @@ To run the *create_tables.py* script, open a terminal window and run the followi
 ```
 python create_tables.py
 ```
+
+
 ### ETL Pipeline
 The *etl.py* script implements an ETL pipeline to extract data from the log files and inserts the data into the appropriate tables. 
 
@@ -87,12 +92,13 @@ To run the *etl.py* script, open a terminal window and run the following command
 python etl.py
 ```
 
+
 ### Queries
 The *sql_queries.py* script contains all of the required SQL queries and statements to create the tables and to insert data.
 The *create_tables.py* and *etl.py* scripts import the SQL, so the *sql_queries.py* script does not need to run directly.
 
 
-## The ETL Process
+## The ETL Process in Detail
 
 ### log_data
 
@@ -127,58 +133,58 @@ And below is an example of what the data in a log file, 2018-11-12-events.json, 
 }
 ```
 
+
 ### Project: Destination Tables
 
 - **Time** table: From dataset, I selected ts and saved the extracted the timestamp, hour, day, week of year, month, year, and weekday from the ts field.
-
-| start_time                 | hour | day | week | month | year | weekday |
-|----------------------------|------|-----|------|-------|------|---------|
-| 2018-11-29 00:00:57.796000 | 0    | 29  | 48   | 11    | 2018 | 3       |
-| 2018-11-29 00:01:30.796000 | 0    | 29  | 48   | 11    | 2018 | 3       |
-
+    
+    | start_time                 | hour | day | week | month | year | weekday |
+    |----------------------------|------|-----|------|-------|------|---------|
+    | 2018-11-29 00:00:57.796000 | 0    | 29  | 48   | 11    | 2018 | 3       |
+    | 2018-11-29 00:01:30.796000 | 0    | 29  | 48   | 11    | 2018 | 3       |
+    
 
 - **Users** table: Saved user ID, first name, last name, gender and level. In case of duplicated user information, I update the level field.
 
-| user_id | first_name | last_name | gender | level |
-|---------|------------|-----------|--------|-------|
-| 91      | Jayden     | Bell      | M      | free  |
-| 73      | Jacob      | Klein     | M      | paid  |
-| 86      | Aiden      | Hess      | M      | free  |
-| 24      | Layla      | Griffin   | F      | paid  |
-| 26      | Ryan       | Smith     | M      | free  |
+    | user_id | first_name | last_name | gender | level |
+    |---------|------------|-----------|--------|-------|
+    | 91      | Jayden     | Bell      | M      | free  |
+    | 73      | Jacob      | Klein     | M      | paid  |
+    | 86      | Aiden      | Hess      | M      | free  |
+    | 24      | Layla      | Griffin   | F      | paid  |
+    | 26      | Ryan       | Smith     | M      | free  |
 
 
 - **Songplays** table: I saved the timestamp, user ID, level, song ID, artist ID, session ID, location, and user agent from dataset. The song ID and artist ID will be retrieved by querying the songs and artists tables to find matches based on song title, artist name, and song duration time.
 
-| songplay_id | start_time                 | user_id | level | song_id | artist_id | session_id | location                            | user_agent                                                                                                              |
-|-------------|----------------------------|---------|-------|---------|-----------|------------|-------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| 1           | 2018-11-29 00:00:57.796000 | 73      | paid  | -       | -         | 954        | Tampa-St. Petersburg-Clearwater, FL | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2" |
-| 2           | 2018-11-29 00:01:30.796000 | 24      | paid  | -       | -         | 984        | Lake Havasu City-Kingman, AZ        | "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36"         |
-| 3           | 01:12:48.796000            | 73      | paid  | None    | None      | 1049       | Tampa-St. Petersburg-Clearwater, FL | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2"
-| 4           |01:17:05.796000             | 73      | paid  | None    | None      | 1049       | Tampa-St. Petersburg-Clearwater, FL | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2"
+    | songplay_id | start_time                 | user_id | level | song_id | artist_id | session_id     | location                            |     user_agent                                                                                                                  |
+    |-------------|----------------------------|---------|-------|---------|-----------|------------|    -------------------------------------|    -------------------------------------------------------------------------------------------------    ------------------------|
+    | 1           | 2018-11-29 00:00:57.796000 | 73      | paid  | -       | -         | 954            | Tampa-St. Petersburg-Clearwater, FL | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4)     AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2" |
+    | 2           | 2018-11-29 00:01:30.796000 | 24      | paid  | -       | -         | 984            | Lake Havasu City-Kingman, AZ        | "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36     (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36"         |
+    | 3           | 01:12:48.796000            | 73      | paid  | None    | None      | 1049           | Tampa-St. Petersburg-Clearwater, FL | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4)     AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2"
+    | 4           |01:17:05.796000             | 73      | paid  | None    | None      | 1049           | Tampa-St. Petersburg-Clearwater, FL | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4)     AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2"
 
 
 - **Songs** table: I saved song ID, Title, artist id, year and duration. 
 
-| song_id              | title                             | artist_id           | year   | duration  |
-|----------------------|-----------------------------------|---------------------|--------|-----------|
-| SOMZWCG12A8C13C480   | I Didn't Mean To                  | ARD7TVE1187B99BFB1  | None   | 218.93179 |
-| SOUDSGM12AC9618304   | Insatiable (Instrumental Version) | ARNTLGG11E2835DDB9  | None   | 266.39628 |
-| SOIAZJW12AB01853F1   | Pink World                        | AR8ZCNI1187B9A069B  | 1984   | 269.81832 |
+    | song_id              | title                             | artist_id           | year   |     duration  |
+    |----------------------|-----------------------------------|---------------------|--------|    -----------|
+    | SOMZWCG12A8C13C480   | I Didn't Mean To                  | ARD7TVE1187B99BFB1  | None   | 218.    93179 |
+    | SOUDSGM12AC9618304   | Insatiable (Instrumental Version) | ARNTLGG11E2835DDB9  | None   | 266.    39628 |
+    | SOIAZJW12AB01853F1   | Pink World                        | AR8ZCNI1187B9A069B  | 1984   | 269.    81832 |
 
 
 - **Artists** table: I saved artist_id,name,location,latitude and longitude.
 
-| artist_id          | name             | location        | latitude   | longitude  |
-|--------------------|------------------|-----------------|------------|------------|
-| ARD7TVE1187B99BFB1 | Casual           | California - LA | None       | None       |
-| ARNTLGG11E2835DDB9 | Clp              | None            | None       | None       |
-| AR8ZCNI1187B9A069B | Planet P Project | None            | None       | None       |
-
-
-
-
-### Song Play Analysis - Sample Queries
+    | artist_id          | name             | location        | latitude   | longitude  |
+    |--------------------|------------------|-----------------|------------|------------|    
+    | ARD7TVE1187B99BFB1 | Casual           | California - LA | None       | None       |    
+    | ARNTLGG11E2835DDB9 | Clp              | None            | None       | None       |    
+    | AR8ZCNI1187B9A069B | Planet P Project | None            | None       | None       |    
+    
+    
+    
+### Song Play Analysis - Sample Queries    
 
 -  Query the most popular user agent
 ```sql
@@ -187,7 +193,7 @@ FROM songplays
 WHERE user_agent IS NOT NULL
 GROUP BY user_agent
 ORDER BY 2 DESC;
-````
+```
 
 
 -  Query the gender distribution
