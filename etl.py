@@ -9,7 +9,7 @@ def load_staging_tables(cur, conn):
     """
     for query in copy_table_queries:
         print('------------------')
-        print('Processing query: {}'.format(query))
+        print('Processing query:\n------------------\n {}'.format(query))
         cur.execute(query)
         conn.commit()
         print('------------------')
@@ -23,11 +23,11 @@ def insert_tables(cur, conn):
     """
     for query in insert_table_queries:
         print('------------------')
-        print('Processing query: {}'.format(query))
+        print('Processing query:\n------------------\n {}'.format(query))
         cur.execute(query)
         conn.commit()
         print('------------------')
-        print('Processed OK.')
+        print('Processed OK.\n******************')
 
 
 def main():
